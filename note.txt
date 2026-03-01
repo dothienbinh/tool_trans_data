@@ -1,0 +1,5 @@
+USE test;
+INSERT INTO users(name) VALUES ('Minh Anh c');
+INSERT INTO users(name) VALUES ('Minh Anh d');
+UPDATE users SET name = 'Updated2' WHERE id = 1;
+DELETE FROM users WHERE id = 2;
