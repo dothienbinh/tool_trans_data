@@ -12,11 +12,13 @@ export class NormalizerService {
 
   async handle(topic: string, event: any) {
     if (!event?.payload?.after) return;
+    console.log('Received topic:', topic);
     const data = this.normalizeStudent(event.payload);
     console.log('Normalized user:', data);
 
     const test = await this.userRepo.create({
       name: data.name,
+      email: 'dothienbinh@example.com',
       action: data.action,
       before: data.before,
       after: data.after,

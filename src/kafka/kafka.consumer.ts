@@ -2,6 +2,8 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
 import { NormalizerService } from '../normalizer/normalizer.service';
 import { ConfigService } from '@nestjs/config';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 
 @Injectable()
 export class KafkaConsumer implements OnModuleDestroy {
@@ -17,6 +19,7 @@ export class KafkaConsumer implements OnModuleDestroy {
   constructor(
     private normalizer: NormalizerService,
     private configService: ConfigService,
+    @InjectRedis() private readonly Redis: Redis,
   ) {}
 
   async start() {
@@ -37,13 +40,17 @@ export class KafkaConsumer implements OnModuleDestroy {
           if (!value) return;
 
           const parsed = JSON.parse(value);
-
+          await this.pushRealtime(parsed);
           await this.normalizer.handle(topic, parsed);
         },
       });
     } catch (err) {
       console.error('Failed to start Kafka consumer:', err);
     }
+  }
+
+  async pushRealtime(data: any) {
+    await this.Redis.publish('realtime_channel', JSON.stringify(data));
   }
 
   async onModuleDestroy() {

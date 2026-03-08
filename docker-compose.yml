@@ -11,8 +11,28 @@ services:
       POSTGRES_DB: student_db
     ports:
       - '5432:5432'
+    command: >
+      postgres
+      -c wal_level=logical
+      -c max_replication_slots=10
+      -c max_wal_senders=10
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    restart: always
+    ports:
+      - '5540:5540'
 volumes:
   postgres_data:
+  redis_data:
